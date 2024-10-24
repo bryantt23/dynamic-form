@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { setFormData } from '../features/form/formSlice'
+import * as Yup from 'yup'
 
 function Form() {
     const [name, setName] = useState("")
@@ -9,11 +10,23 @@ function Form() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    const handleSubmit = (e) => {
+    const validationSchema = Yup.object({
+        name: Yup.string().required(),
+        email: Yup.string().email().required()
+    })
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
         const results = { name, email }
-        dispatch(setFormData(results))
-        navigate("/results")
+
+        try {
+            const formData = await validationSchema.validate(results)
+            dispatch(setFormData(formData))
+            navigate("/results")
+        } catch (error) {
+            console.log("Validation failed:", error);
+        }
+
     }
 
     return (
@@ -27,7 +40,7 @@ function Form() {
                     />
                 </label>
                 <label>Email
-                    <input type="email"
+                    <input type="text"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                     />
