@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 import { setFormData } from '../features/form/formSlice'
 import * as Yup from 'yup'
 import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik'
+import './Form.css'
 
 function Form() {
     const navigate = useNavigate()
@@ -11,7 +12,9 @@ function Form() {
 
     const validationSchema = Yup.object({
         name: Yup.string().required(),
-        email: Yup.string().email().required()
+        email: Yup.string().email().required(),
+        age: Yup.number().required().min(1).max(130),
+        occupation: Yup.string().required()
     })
 
     const handleSubmit = (values) => {
@@ -21,7 +24,6 @@ function Form() {
         } catch (error) {
             console.log("Validation failed:", error);
         }
-
     }
 
     const renderError = (message) => <p>{message}</p>
@@ -30,29 +32,50 @@ function Form() {
         <div>
             <h1>Form</h1>
             <Formik
-                initialValues={{ name: "", email: "" }}
+                initialValues={{ name: "", email: "", age: '', occupation: '' }}
                 onSubmit={handleSubmit}
                 validationSchema={validationSchema}
             >
                 <FormikForm>
-                    <label>Name
-                        <Field
-                            name="name"
-                            type="text"
-                        />
-                        <ErrorMessage name="name" render={renderError} />
-                    </label>
-                    <label>Email
-                        <Field
-                            name="email"
-                            type="text"
-                        />
-                        <ErrorMessage name="email" render={renderError} />
-                    </label>
+                    <div className='section'>
+                        <p>Section 1</p>
+                        <label>Name
+                            <Field
+                                name="name"
+                                type="text"
+                            />
+                            <ErrorMessage name="name" render={renderError} />
+                        </label>
+                        <label>Email
+                            <Field
+                                name="email"
+                                type="text"
+                            />
+                            <ErrorMessage name="email" render={renderError} />
+                        </label>
+                    </div>
+                    <div className='section'>
+                        <p>Section 2</p>
+                        <label>Age
+                            <Field
+                                name="age"
+                                type="number"
+                                placeholder="Enter your age"
+                            />
+                            <ErrorMessage name="age" render={renderError} />
+                        </label>
+                        <label>Occupation
+                            <Field
+                                name="occupation"
+                                type="text"
+                            />
+                            <ErrorMessage name="occupation" render={renderError} />
+                        </label>
+                    </div>
                     <button type='submit'>Submit</button>
                 </FormikForm>
             </Formik>
-        </div >
+        </div>
     )
 }
 
