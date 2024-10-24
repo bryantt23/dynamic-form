@@ -1,11 +1,16 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function Form() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const navigate = useNavigate()
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        const results = { name, email }
+        localStorage.setItem("results", JSON.stringify(results))
+        navigate("/results")
     }
 
     return (
