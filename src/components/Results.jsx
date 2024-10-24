@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 function Results() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const results = useSelector((state) => state.form)
 
     useEffect(() => {
-        const results = localStorage.getItem("results")
-        const { name, email } = JSON.parse(results)
+        const { name, email } = results
         setName(name)
         setEmail(email)
     }, [])

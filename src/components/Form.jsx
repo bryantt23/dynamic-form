@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { setFormData } from '../features/form/formSlice'
 
 function Form() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const handleSubmit = (e) => {
         e.preventDefault()
         const results = { name, email }
-        localStorage.setItem("results", JSON.stringify(results))
+        dispatch(setFormData(results))
         navigate("/results")
     }
 
