@@ -76,6 +76,15 @@ function Form() {
                 setNextButtonDisabled(true)
             }
         }
+        else {
+            try {
+                await getValidationSchema().validate(values)
+                setSubmitButtonDisabled(false)
+            } catch (error) {
+                console.error(error)
+                setSubmitButtonDisabled(true)
+            }
+        }
 
         setSelectedOccupation(values.occupation)
     }
@@ -106,7 +115,7 @@ function Form() {
                 validationSchema={getValidationSchema()}
                 isInitialValid={false}
             >
-                {({ dirty, isValid, values }) => {
+                {({ values }) => {
                     validateForm(values)
                     const selectOptions = ["", ...occupations]
                     return (

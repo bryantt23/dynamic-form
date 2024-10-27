@@ -14,6 +14,8 @@ export const formSlice = createSlice({
             state.email = action.payload.email
             state.age = action.payload.age
             state.occupation = action.payload.occupation
+            state.subordinates = action.payload.subordinates
+            state.language = action.payload.language
         }
     }
 })
