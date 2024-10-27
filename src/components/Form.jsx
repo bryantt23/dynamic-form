@@ -10,6 +10,7 @@ function Form() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [validSectionCount, setValidSectionCount] = useState(0)
+    const [submitButtonDisabled, setSubmitButtonDisabled] = useState(true)
 
     const section1ValidationSchema = Yup.object({
         name: Yup.string().required(),
@@ -37,6 +38,18 @@ function Form() {
         setValidSectionCount(1)
     }
 
+    const validateForm = async (values) => {
+        if (validSectionCount > 0) {
+            try {
+                await section2ValidationSchema.validate(values)
+                setSubmitButtonDisabled(false)
+            } catch (error) {
+                console.error(error)
+                setSubmitButtonDisabled(true)
+            }
+        }
+    }
+
     return (
         <div>
             <h1>Form</h1>
@@ -46,11 +59,12 @@ function Form() {
                 validationSchema={validSectionCount === 0 ? section1ValidationSchema : section2ValidationSchema}
                 isInitialValid={false}
             >
-                {({ dirty, isValid }) => {
+                {({ dirty, isValid, values }) => {
+                    validateForm(values)
                     return (
                         <FormikForm
                         >
-                            <div className={`section ${validSectionCount > 1 && 'disabled'}`}>
+                            <div className={`section ${validSectionCount > 0 && 'disabled'}`}>
                                 <p>Section 1</p>
                                 <label>Name
                                     <Field
@@ -92,11 +106,10 @@ function Form() {
                                 }}>
                                 Next</button>
                             <button
-                                disabled={(validSectionCount < 1) || !isValid}
+                                disabled={submitButtonDisabled}
                                 type='submit'
                             >Submit</button>
                         </FormikForm>
-
                     )
                 }}
             </Formik>
