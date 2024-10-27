@@ -6,6 +6,8 @@ import * as Yup from 'yup'
 import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik'
 import './Form.css'
 
+const occupations = ["Developer", "Manager"]
+
 function Form() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -61,6 +63,7 @@ function Form() {
             >
                 {({ dirty, isValid, values }) => {
                     validateForm(values)
+                    const selectOptions = ["", ...occupations]
                     return (
                         <FormikForm
                         >
@@ -94,8 +97,15 @@ function Form() {
                                 <label>Occupation
                                     <Field
                                         name="occupation"
-                                        type="text"
-                                    />
+                                        as="select"
+                                    >
+                                        {
+                                            selectOptions.map((occupation, index) => (
+                                                <option key={index}>
+                                                    {occupation}
+                                                </option>))
+                                        }
+                                    </Field>
                                     <ErrorMessage name="occupation" render={renderError} />
                                 </label>
                             </div>
