@@ -7,6 +7,15 @@ import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik'
 import './Form.css'
 
 const occupations = ["Developer", "Manager"]
+const languages = ["", "Ruby", "JavaScript", "C#"]
+
+const section2ManagerValidationSchema = Yup.object({
+    subordinates: Yup.number().required().min(1).max(7)
+})
+
+const section2DeveloperValidationSchema = Yup.object({
+    language: Yup.string().required()
+})
 
 function Form() {
     const navigate = useNavigate()
@@ -22,15 +31,39 @@ function Form() {
         occupation: Yup.string().required()
     })
 
-    const section2ManagerValidationSchema = Yup.object({
-        subordinates: Yup.number().required().min(1).max(7)
-    })
+    const renderError = (message) => <p>{message}</p>
 
-    const section2DeveloperValidationSchema = Yup.object({
-        language: Yup.string().required()
-    })
+    const strategyMap = {
+        "Developer": {
+            schema: section2DeveloperValidationSchema,
+            label: <label>Language
+                <Field
+                    name="language"
+                    as="select"
+                >
+                    {
+                        languages.map((language, index) => (
+                            <option key={index}>
+                                {language}
+                            </option>))
+                    }
+                </Field>
+                <ErrorMessage name="language" render={renderError} />
+            </label>,
+        },
+        "Manager": {
+            schema: section2ManagerValidationSchema,
+            label: <label>Number of subordinates
+                <Field
+                    name="subordinates"
+                    type="number"
+                    placeholder="Enter your subordinates"
+                />
+                <ErrorMessage name="subordinates" render={renderError} />
+            </label>
+        },
+    }
 
-    const languages = ["", "Ruby", "JavaScript", "C#"]
 
     const handleSubmit = (values) => {
         try {
@@ -40,8 +73,6 @@ function Form() {
             console.log("Validation failed:", error);
         }
     }
-
-    const renderError = (message) => <p>{message}</p>
 
     const validateForm = async (values) => {
         if (!validInitialSections) {
@@ -72,19 +103,20 @@ function Form() {
             return section1ValidationSchema
         }
         else {
+            const fields = strategyMap[selectedOccupation].schema.fields
             return Yup.object().shape({
                 ...section1ValidationSchema.fields,
-                ...(selectedOccupation === 'Manager' ? section2ManagerValidationSchema.fields : section2DeveloperValidationSchema.fields)
+                ...fields
             })
         }
     }
 
+
     return (
         <div>
-            {validInitialSections ? 'y' : 'n'}
             <h1>Form</h1>
             <Formik
-                initialValues={{ name: "bbb", email: "b@g.com", age: '', occupation: '' }}
+                initialValues={{ name: "bbb", email: "b@g.com", age: '42', occupation: 'Manager' }}
                 onSubmit={handleSubmit}
                 validationSchema={getValidationSchema()}
                 isInitialValid={false}
@@ -140,33 +172,8 @@ function Form() {
                             {validInitialSections && (
                                 <div className={"section"}>
                                     <p>Section 3</p>
-                                    {selectedOccupation === 'Developer' ? (<label>Language
-                                        <Field
-                                            name="language"
-                                            as="select"
-                                        >
-                                            {
-                                                languages.map((language, index) => (
-                                                    <option key={index}>
-                                                        {language}
-                                                    </option>))
-                                            }
-                                        </Field>
-                                        <ErrorMessage name="language" render={renderError} />
-                                    </label>) :
-                                        (
-                                            <label>Number of subordinates
-                                                <Field
-                                                    name="subordinates"
-                                                    type="number"
-                                                    placeholder="Enter your subordinates"
-                                                />
-                                                <ErrorMessage name="subordinates" render={renderError} />
-                                            </label>
-                                        )}
-
+                                    {strategyMap[selectedOccupation].label}
                                 </div>
-
                             )}
                             <button
                                 disabled={submitButtonDisabled}
