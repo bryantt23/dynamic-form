@@ -6,8 +6,9 @@ import * as Yup from 'yup'
 import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik'
 import './Form.css'
 
-const occupations = ["Developer", "Manager"]
+const occupations = ["Developer", "Manager", "Radio"]
 const languages = ["", "Ruby", "JavaScript", "C#"]
+const tvGenres = ["Sitcom", "Reality", "Sports"]
 
 const section2ManagerValidationSchema = Yup.object({
     subordinates: Yup.number().required().min(1).max(7)
@@ -15,6 +16,10 @@ const section2ManagerValidationSchema = Yup.object({
 
 const section2DeveloperValidationSchema = Yup.object({
     language: Yup.string().required()
+})
+
+const section2RadioValidationSchema = Yup.object({
+    radio: Yup.string().required()
 })
 
 const renderError = (message) => <p>{message}</p>
@@ -49,6 +54,30 @@ const RecursiveContainer = ({ config }) => {
                         />
                         <ErrorMessage name={individualConfig.name} render={renderError} />
                     </label>
+                )
+            case 'radio':
+                return (
+                    <div
+                        name={individualConfig.name}
+                    >
+                        <p>
+                            {individualConfig.title}
+                        </p>
+                        {
+                            individualConfig.array.map((item, index) => (
+                                <label key={index}>
+                                    <Field
+                                        type="radio"
+                                        value={item}
+                                        name={individualConfig.name}
+                                    />
+                                    {item}
+                                </label>
+                            ))
+                        }
+                        <ErrorMessage name={individualConfig.name} render={renderError} />
+
+                    </div>
                 )
             case 'array':
                 return (
@@ -97,6 +126,13 @@ function Form() {
             placeholder: "Enter your subordinates",
             type: 'number'
         },
+        "Radio": {
+            schema: section2RadioValidationSchema,
+            name: 'radio',
+            title: 'Radio selection',
+            array: tvGenres,
+            type: 'radio'
+        }
     }
 
 
@@ -151,7 +187,7 @@ function Form() {
         <div>
             <h1>Form</h1>
             <Formik
-                initialValues={{ name: "bbb", email: "b@g.com", age: '42', occupation: 'Manager' }}
+                initialValues={{ name: "bbb", email: "b@g.com", age: '42', occupation: 'Radio' }}
                 onSubmit={handleSubmit}
                 validationSchema={getValidationSchema()}
                 isInitialValid={false}
@@ -189,7 +225,7 @@ function Form() {
                                     />
                                     <ErrorMessage name="age" render={renderError} />
                                 </label>
-                                <label>Occupation
+                                <label>Category
                                     <Field
                                         name="occupation"
                                         as="select"
