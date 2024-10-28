@@ -160,7 +160,23 @@ function Form() {
 
     const handleSubmit = (values) => {
         try {
-            dispatch(setFormData(values))
+            // Base fields for all sections
+            const baseFields = {
+                name: values.name,
+                email: values.email,
+                age: values.age,
+                occupation: values.occupation,
+            };
+
+            // Get the schema and fields based on selected occupation from strategyMap
+            const occupationSchema = strategyMap[values.occupation]
+
+            // Extract only the relevant fields for the selected occupation
+            const specificFields = occupationSchema ? { [occupationSchema.name]: values[occupationSchema.name] } : {}
+
+            const finalValues = { ...baseFields, ...specificFields }
+
+            dispatch(setFormData(finalValues))
             navigate("/results")
         } catch (error) {
             console.log("Validation failed:", error);
