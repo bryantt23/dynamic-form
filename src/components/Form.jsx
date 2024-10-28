@@ -17,6 +17,57 @@ const section2DeveloperValidationSchema = Yup.object({
     language: Yup.string().required()
 })
 
+const renderError = (message) => <p>{message}</p>
+
+const RecursiveContainer = ({ config }) => {
+    const builder = (individualConfig) => {
+        switch (individualConfig.type) {
+            case 'dropdown':
+                return (
+                    <label>{individualConfig.title}
+                        <Field
+                            name={individualConfig.name}
+                            as="select"
+                        >
+                            {
+                                individualConfig.array.map((item, index) => (
+                                    <option key={index}>
+                                        {item}
+                                    </option>))
+                            }
+                        </Field>
+                        <ErrorMessage name={individualConfig.name} render={renderError} />
+                    </label>
+                )
+            case 'number':
+                return (
+                    <label>{individualConfig.title}
+                        <Field
+                            name={individualConfig.name}
+                            type="number"
+                            placeholder={individualConfig.placeholder}
+                        />
+                        <ErrorMessage name={individualConfig.name} render={renderError} />
+                    </label>
+                )
+            case 'array':
+                return (
+                    <RecursiveContainer config={individualConfig.children || []} />
+                )
+            default:
+                return <div>Unsupported field</div>
+        }
+    }
+
+    return (
+        <>
+            {config.map(c => {
+                return builder(c)
+            })}
+        </>
+    )
+}
+
 function Form() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -31,36 +82,20 @@ function Form() {
         occupation: Yup.string().required()
     })
 
-    const renderError = (message) => <p>{message}</p>
-
     const strategyMap = {
         "Developer": {
             schema: section2DeveloperValidationSchema,
-            label: <label>Language
-                <Field
-                    name="language"
-                    as="select"
-                >
-                    {
-                        languages.map((language, index) => (
-                            <option key={index}>
-                                {language}
-                            </option>))
-                    }
-                </Field>
-                <ErrorMessage name="language" render={renderError} />
-            </label>,
+            name: 'language',
+            array: languages,
+            title: 'Languages',
+            type: 'dropdown'
         },
         "Manager": {
             schema: section2ManagerValidationSchema,
-            label: <label>Number of subordinates
-                <Field
-                    name="subordinates"
-                    type="number"
-                    placeholder="Enter your subordinates"
-                />
-                <ErrorMessage name="subordinates" render={renderError} />
-            </label>
+            name: 'subordinates',
+            title: 'Number of subordinates',
+            placeholder: "Enter your subordinates",
+            type: 'number'
         },
     }
 
@@ -172,7 +207,7 @@ function Form() {
                             {validInitialSections && (
                                 <div className={"section"}>
                                     <p>Section 3</p>
-                                    {strategyMap[selectedOccupation].label}
+                                    <RecursiveContainer config={[strategyMap[selectedOccupation]]} />
                                 </div>
                             )}
                             <button
