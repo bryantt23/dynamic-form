@@ -6,7 +6,7 @@ import * as Yup from 'yup'
 import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik'
 import './Form.css'
 
-const occupations = ["Developer", "Manager", "Radio"]
+const occupations = ["Developer", "Manager", "Radio", "Writer"]
 const languages = ["", "Ruby", "JavaScript", "C#"]
 const tvGenres = ["Sitcom", "Reality", "Sports"]
 
@@ -21,6 +21,11 @@ const section2DeveloperValidationSchema = Yup.object({
 const section2RadioValidationSchema = Yup.object({
     radio: Yup.string().required()
 })
+
+const section2TextValidationSchema = Yup.object({
+    text: Yup.string().required().min(1)
+})
+
 
 const renderError = (message) => <p>{message}</p>
 
@@ -76,8 +81,18 @@ const RecursiveContainer = ({ config }) => {
                             ))
                         }
                         <ErrorMessage name={individualConfig.name} render={renderError} />
-
                     </div>
+                )
+            case 'text':
+                return (
+                    <label>{individualConfig.title}
+                        <Field
+                            name={individualConfig.name}
+                            type="text"
+                            placeholder={individualConfig.placeholder}
+                        />
+                        <ErrorMessage name={individualConfig.name} render={renderError} />
+                    </label>
                 )
             case 'array':
                 return (
@@ -132,7 +147,14 @@ function Form() {
             title: 'Radio selection',
             array: tvGenres,
             type: 'radio'
-        }
+        },
+        "Writer": {
+            schema: section2TextValidationSchema,
+            name: 'text',
+            title: 'Text',
+            placeholder: "Enter your text",
+            type: 'text'
+        },
     }
 
 
@@ -187,7 +209,7 @@ function Form() {
         <div>
             <h1>Form</h1>
             <Formik
-                initialValues={{ name: "bbb", email: "b@g.com", age: '42', occupation: 'Radio' }}
+                initialValues={{ name: "bbb", email: "b@g.com", age: '42', occupation: 'Writer' }}
                 onSubmit={handleSubmit}
                 validationSchema={getValidationSchema()}
                 isInitialValid={false}
