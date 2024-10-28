@@ -123,7 +123,7 @@ function Form() {
             >
                 {({ values }) => {
                     validateForm(values)
-                    const selectOptions = ["", ...occupations]
+                    const selectOptions = occupations
                     return (
                         <FormikForm
                         >
