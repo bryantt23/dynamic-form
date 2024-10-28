@@ -11,26 +11,22 @@ const occupations = ["Developer", "Manager"]
 function Form() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [validSectionCount, setValidSectionCount] = useState(0)
-    const [nextButtonDisabled, setNextButtonDisabled] = useState(true)
+    const [validInitialSections, setValidInitialSections] = useState(false)
     const [submitButtonDisabled, setSubmitButtonDisabled] = useState(true)
     const [selectedOccupation, setSelectedOccupation] = useState("")
 
     const section1ValidationSchema = Yup.object({
         name: Yup.string().required(),
-        email: Yup.string().email().required()
-    })
-
-    const section2ValidationSchema = Yup.object({
+        email: Yup.string().email().required(),
         age: Yup.number().required().min(1).max(130),
         occupation: Yup.string().required()
     })
 
-    const section3ManagerValidationSchema = Yup.object({
+    const section2ManagerValidationSchema = Yup.object({
         subordinates: Yup.number().required().min(1).max(7)
     })
 
-    const section3DeveloperValidationSchema = Yup.object({
+    const section2DeveloperValidationSchema = Yup.object({
         language: Yup.string().required()
     })
 
@@ -47,33 +43,15 @@ function Form() {
 
     const renderError = (message) => <p>{message}</p>
 
-    const handleNext = (e) => {
-        if (validSectionCount < 2) {
-            e.preventDefault()
-            setValidSectionCount(prev => prev + 1)
-            setNextButtonDisabled(true)
-        }
-    }
-
     const validateForm = async (values) => {
-        if (validSectionCount === 0) {
+        if (!validInitialSections) {
             try {
                 await section1ValidationSchema.validate(values)
-                setNextButtonDisabled(false)
                 setSubmitButtonDisabled(true)
+                setValidInitialSections(true)
             } catch (error) {
                 console.error(error)
-                setNextButtonDisabled(true)
-            }
-        }
-        else if (validSectionCount === 1) {
-            try {
-                await section2ValidationSchema.validate(values)
-                setNextButtonDisabled(false)
-                setSubmitButtonDisabled(true)
-            } catch (error) {
-                console.error(error)
-                setNextButtonDisabled(true)
+                setValidInitialSections(false)
             }
         }
         else {
@@ -90,27 +68,23 @@ function Form() {
     }
 
     const getValidationSchema = () => {
-        if (validSectionCount === 0) {
+        if (!validInitialSections) {
             return section1ValidationSchema
         }
-        else if (validSectionCount === 1) {
-            return section2ValidationSchema
-        }
         else {
-            if (selectedOccupation === 'Manager') {
-                return section3ManagerValidationSchema
-            }
-            else {
-                return section3DeveloperValidationSchema
-            }
+            return Yup.object().shape({
+                ...section1ValidationSchema.fields,
+                ...(selectedOccupation === 'Manager' ? section2ManagerValidationSchema.fields : section2DeveloperValidationSchema.fields)
+            })
         }
     }
 
     return (
         <div>
+            {validInitialSections ? 'y' : 'n'}
             <h1>Form</h1>
             <Formik
-                initialValues={{ name: "", email: "", age: '', occupation: '' }}
+                initialValues={{ name: "bbb", email: "b@g.com", age: '', occupation: '' }}
                 onSubmit={handleSubmit}
                 validationSchema={getValidationSchema()}
                 isInitialValid={false}
@@ -121,7 +95,7 @@ function Form() {
                     return (
                         <FormikForm
                         >
-                            <div className={`section ${validSectionCount > 0 && 'disabled'}`}>
+                            <div className={'section'}>
                                 <p>Section 1</p>
                                 <label>Name
                                     <Field
@@ -138,7 +112,7 @@ function Form() {
                                     <ErrorMessage name="email" render={renderError} />
                                 </label>
                             </div>
-                            <div className={`section ${validSectionCount < 1 && 'disabled'}`}>
+                            <div className={'section'}>
                                 <p>Section 2</p>
                                 <label>Age
                                     <Field
@@ -163,7 +137,7 @@ function Form() {
                                     <ErrorMessage name="occupation" render={renderError} />
                                 </label>
                             </div>
-                            {validSectionCount > 1 && (
+                            {validInitialSections && (
                                 <div className={"section"}>
                                     <p>Section 3</p>
                                     {selectedOccupation === 'Developer' ? (<label>Language
@@ -194,12 +168,6 @@ function Form() {
                                 </div>
 
                             )}
-                            <button
-                                disabled={nextButtonDisabled}
-                                onClick={e => {
-                                    handleNext(e);
-                                }}>
-                                Next</button>
                             <button
                                 disabled={submitButtonDisabled}
                                 type='submit'
