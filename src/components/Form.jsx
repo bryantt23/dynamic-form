@@ -5,6 +5,9 @@ import { setFormData } from '../features/form/formSlice'
 import * as Yup from 'yup'
 import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik'
 import './Form.css'
+import { RecursiveContainer } from './RecursiveContainer'
+import { RenderError } from './RenderError'
+
 
 const occupations = ["Developer", "Manager", "Radio", "Writer"]
 const languages = ["", "Ruby", "JavaScript", "C#"]
@@ -25,92 +28,6 @@ const section2RadioValidationSchema = Yup.object({
 const section2TextValidationSchema = Yup.object({
     text: Yup.string().required().min(1)
 })
-
-
-const renderError = (message) => <p>{message}</p>
-
-const RecursiveContainer = ({ config }) => {
-    const builder = (individualConfig) => {
-        switch (individualConfig.type) {
-            case 'dropdown':
-                return (
-                    <label>{individualConfig.title}
-                        <Field
-                            name={individualConfig.name}
-                            as="select"
-                        >
-                            {
-                                individualConfig.array.map((item, index) => (
-                                    <option key={index}>
-                                        {item}
-                                    </option>))
-                            }
-                        </Field>
-                        <ErrorMessage name={individualConfig.name} render={renderError} />
-                    </label>
-                )
-            case 'number':
-                return (
-                    <label>{individualConfig.title}
-                        <Field
-                            name={individualConfig.name}
-                            type="number"
-                            placeholder={individualConfig.placeholder}
-                        />
-                        <ErrorMessage name={individualConfig.name} render={renderError} />
-                    </label>
-                )
-            case 'radio':
-                return (
-                    <div
-                        name={individualConfig.name}
-                    >
-                        <p>
-                            {individualConfig.title}
-                        </p>
-                        {
-                            individualConfig.array.map((item, index) => (
-                                <label key={index}>
-                                    <Field
-                                        type="radio"
-                                        value={item}
-                                        name={individualConfig.name}
-                                    />
-                                    {item}
-                                </label>
-                            ))
-                        }
-                        <ErrorMessage name={individualConfig.name} render={renderError} />
-                    </div>
-                )
-            case 'text':
-                return (
-                    <label>{individualConfig.title}
-                        <Field
-                            name={individualConfig.name}
-                            type="text"
-                            placeholder={individualConfig.placeholder}
-                        />
-                        <ErrorMessage name={individualConfig.name} render={renderError} />
-                    </label>
-                )
-            case 'array':
-                return (
-                    <RecursiveContainer config={individualConfig.children || []} />
-                )
-            default:
-                return <div>Unsupported field</div>
-        }
-    }
-
-    return (
-        <>
-            {config.map(c => {
-                return builder(c)
-            })}
-        </>
-    )
-}
 
 function Form() {
     const navigate = useNavigate()
@@ -243,14 +160,14 @@ function Form() {
                                         name="name"
                                         type="text"
                                     />
-                                    <ErrorMessage name="name" render={renderError} />
+                                    <ErrorMessage name="name" render={RenderError} />
                                 </label>
                                 <label>Email
                                     <Field
                                         name="email"
                                         type="text"
                                     />
-                                    <ErrorMessage name="email" render={renderError} />
+                                    <ErrorMessage name="email" render={RenderError} />
                                 </label>
                             </div>
                             <div className={'section'}>
@@ -261,7 +178,7 @@ function Form() {
                                         type="number"
                                         placeholder="Enter your age"
                                     />
-                                    <ErrorMessage name="age" render={renderError} />
+                                    <ErrorMessage name="age" render={RenderError} />
                                 </label>
                                 <label>Category
                                     <Field
@@ -275,7 +192,7 @@ function Form() {
                                                 </option>))
                                         }
                                     </Field>
-                                    <ErrorMessage name="occupation" render={renderError} />
+                                    <ErrorMessage name="occupation" render={RenderError} />
                                 </label>
                             </div>
                             {validInitialSections && (
