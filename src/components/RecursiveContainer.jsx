@@ -2,6 +2,7 @@ import { ErrorMessage, Field } from "formik"
 import { RenderError } from "./RenderError"
 
 export const RecursiveContainer = ({ config }) => {
+    console.log("🚀 ~ RecursiveContainer ~ config:", config)
     const builder = (individualConfig) => {
         switch (individualConfig.type) {
             case 'dropdown':

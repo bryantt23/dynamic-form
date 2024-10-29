@@ -2,7 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     name: '',
-    email: ''
+    email: '',
+    age: '',
+    occupation: ''
 }
 
 export const formSlice = createSlice({
@@ -20,10 +22,11 @@ export const formSlice = createSlice({
                     state[key] = value
                 }
             })
-        }
+        },
+        resetStore: () => initialState
     }
 })
 
-export const { setFormData } = formSlice.actions
+export const { setFormData, resetStore } = formSlice.actions
 
 export default formSlice.reducer

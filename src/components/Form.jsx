@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { Children, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { setFormData } from '../features/form/formSlice'
+import { resetStore, setFormData } from '../features/form/formSlice'
 import * as Yup from 'yup'
 import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik'
 import './Form.css'
@@ -9,7 +9,7 @@ import { RecursiveContainer } from './RecursiveContainer'
 import { RenderError } from './RenderError'
 
 
-const occupations = ["Developer", "Manager", "Radio", "Writer"]
+const occupations = ["Developer", "Manager", "Radio", "Writer", "RadioWriter"]
 const languages = ["", "Ruby", "JavaScript", "C#"]
 const tvGenres = ["Sitcom", "Reality", "Sports"]
 
@@ -22,11 +22,16 @@ const section2DeveloperValidationSchema = Yup.object({
 })
 
 const section2RadioValidationSchema = Yup.object({
-    radio: Yup.string().required()
+    radioSelection: Yup.string().required()
 })
 
 const section2TextValidationSchema = Yup.object({
     text: Yup.string().required().min(1)
+})
+
+const section2RadioWriterValidationSchema = Yup.object({
+    radioWriterRadio: Yup.string().required(),
+    radioWriterText: Yup.string().required().min(1)
 })
 
 function Form() {
@@ -60,23 +65,46 @@ function Form() {
         },
         "Radio": {
             schema: section2RadioValidationSchema,
-            name: 'radio',
+            name: 'radioSelection',
             title: 'Radio selection',
             array: tvGenres,
             type: 'radio'
         },
         "Writer": {
             schema: section2TextValidationSchema,
-            name: 'text',
+            name: 'writerText',
             title: 'Text',
             placeholder: "Enter your text",
             type: 'text'
         },
-    }
-
+        "RadioWriter": {
+            schema: section2RadioWriterValidationSchema,
+            name: ['radioWriterRadio', 'radioWriterText'],
+            title: 'Radio writer',
+            placeholder: "Enter your data",
+            type: 'array',
+            children: [
+                {
+                    schema: section2RadioValidationSchema,
+                    name: 'radioWriterRadio',
+                    title: 'Radio selection',
+                    array: tvGenres,
+                    type: 'radio'
+                },
+                {
+                    schema: section2TextValidationSchema,
+                    name: 'radioWriterText',
+                    title: 'Text',
+                    placeholder: "Enter your text",
+                    type: 'text'
+                }
+            ]
+        }
+    };
 
     const handleSubmit = (values) => {
         try {
+            dispatch(resetStore())
             // Base fields for all sections
             const baseFields = {
                 name: values.name,
@@ -89,7 +117,22 @@ function Form() {
             const occupationSchema = strategyMap[values.occupation]
 
             // Extract only the relevant fields for the selected occupation
-            const specificFields = occupationSchema ? { [occupationSchema.name]: values[occupationSchema.name] } : {}
+            let specificFields = {}
+            if (occupationSchema) {
+                if (Array.isArray(occupationSchema.name)) {
+                    // For occupations like RadioWriter with multiple fields
+                    specificFields = occupationSchema.name.reduce((acc, fieldName) => {
+                        if (values[fieldName] !== undefined) {
+                            acc[fieldName] = values[fieldName]
+                        }
+                        return acc
+                    }, {})
+                }
+                else {
+                    // For occupations with a single field
+                    specificFields = { [occupationSchema.name]: values[occupationSchema.name] }
+                }
+            }
 
             const finalValues = { ...baseFields, ...specificFields }
 
@@ -142,7 +185,7 @@ function Form() {
         <div>
             <h1>Form</h1>
             <Formik
-                initialValues={{ name: "bbb", email: "b@g.com", age: '42', occupation: 'Writer' }}
+                initialValues={{ name: "bbb", email: "b@g.com", age: '42', occupation: 'RadioWriter' }}
                 onSubmit={handleSubmit}
                 validationSchema={getValidationSchema()}
                 isInitialValid={false}
